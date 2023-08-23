@@ -10,7 +10,6 @@ pub struct WorkloadRequest {
 #[derive(Debug, Deserialize, Serialize)]
 pub enum WorkloadKind {
     Container,
-    Baremetal,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
