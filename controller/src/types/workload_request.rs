@@ -1,24 +1,24 @@
 use serde::{Deserialize, Serialize};
 use validator::{Validate, ValidationError};
 
-#[derive(Debug, Validate, Deserialize)]
+#[derive(Debug, Validate, Deserialize, Serialize, Clone)]
 pub struct WorkloadRequest {
     pub version: String,
     pub workload: Workload,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub enum WorkloadKind {
     Container,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub enum WorkloadRegistry {
     Docker,
     Podman,
     Ghcr,
 }
-#[derive(Debug, Validate, Deserialize)]
+#[derive(Debug, Validate, Deserialize, Serialize, Clone)]
 pub struct Workload {
     #[validate(custom = "validate_workload_kind")]
     pub kind: WorkloadKind,
@@ -42,7 +42,6 @@ pub struct Workload {
 fn validate_workload_kind(kind: &WorkloadKind) -> Result<(), ValidationError> {
     match kind {
         WorkloadKind::Container => Ok(()),
-        WorkloadKind::Baremetal => Ok(()),
     }
 }
 
