@@ -63,11 +63,7 @@ impl From<Workload> for scheduler::Workload {
             r#type: Type::Container.into(),
             image: workload.image,
             environment: workload.environment,
-            resource_limits: Some(Resources {
-                cpu: Some(1_i32),
-                memory: Some(1_i32),
-                disk: Some(1_i32),
-            }),
+            resource_limits: Some(Resources::default()),
         }
     }
 }

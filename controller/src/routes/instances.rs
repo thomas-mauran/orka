@@ -7,7 +7,7 @@ use axum::Json;
 use axum::extract::Path;
 use serde_json::{self, json, Value};
 use validator::Validate;
-use log::trace;
+use log::{trace, error};
 use crate::types::instance_status::InstanceStatus;
 
 pub async fn get_instances(_body: String) -> anyhow::Result<Json<Value>, ApiError> {
@@ -67,7 +67,7 @@ pub async fn post_instance(body: String) -> anyhow::Result<Json<Value>, ApiError
                     let result = DB_BATCH.lock().unwrap().set(&id_with_prefix, &kv::Json(InstanceStatus::from(&status)));
                     match result {
                         Ok(()) => {},
-                        Err(e) => println!("{}", e)
+                        Err(e) => error!("{}", e)
                     }
                 }
             });

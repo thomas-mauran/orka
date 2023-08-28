@@ -8,7 +8,7 @@ use crate::client::scheduler;
 
 use store::kv_manager::{KeyValueStore, DB_BATCH};
 use tokio::sync::mpsc;
-use tokio::time::{sleep, Duration};
+use tokio::time::sleep;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{transport::Server, Request, Response, Status};
 
@@ -22,7 +22,7 @@ use std::time::Duration;
 use tokio::task;
 
 use axum::routing::{delete, post};
-use log::info;
+use log::{info, error};
 use routes::instances::{delete_instance, get_instances, get_specific_instance, post_instance};
 use routes::workloads::{delete_workload, get_specific_workload, get_workloads, post_workload};
 
@@ -37,7 +37,7 @@ impl SchedulingService for Scheduler {
         &self,
         request: Request<SchedulingRequest>,
     ) -> Result<Response<Self::ScheduleStream>, Status> {
-        println!("{:?}", request);
+        info!("{:?}", request);
 
         let (sender, receiver) = mpsc::channel(4);
 
@@ -141,10 +141,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 Ok(batch) => {
                     match kv_store {
                         Ok(store) => store.instances_bucket().unwrap().batch(batch.clone()).unwrap(),
-                        Err(e) => println!("{}", e)
+                        Err(e) => error!("{}", e)
                     }
                 }
-                Err(e) => println!("{}", e)
+                Err(e) => error!("{}", e)
             }
         }
     });
