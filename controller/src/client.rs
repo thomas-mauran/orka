@@ -2,6 +2,7 @@ use scheduler::scheduling_service_client::SchedulingServiceClient;
 use scheduler::SchedulingRequest;
 use tonic::Streaming;
 use tonic::transport::Channel;
+use tonic::Streaming;
 
 use self::scheduler::WorkloadStatus;
 
@@ -28,7 +29,6 @@ impl Client {
         let response = self.client.schedule(request).await?;
 
         let stream = response.into_inner();
-
         Ok(stream)
     }
 }

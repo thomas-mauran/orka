@@ -55,7 +55,6 @@ fn validate_workload_registry(registry: &WorkloadRegistry) -> Result<(), Validat
         WorkloadRegistry::Ghcr => Ok(()),
     }
 }
-
 impl From<Workload> for scheduler::Workload {
     fn from(workload: Workload) -> scheduler::Workload {
         // Create a grpc workload object
@@ -72,3 +71,4 @@ impl From<Workload> for scheduler::Workload {
         }
     }
 }
+

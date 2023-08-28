@@ -8,6 +8,7 @@ use crate::client::scheduler;
 
 use store::kv_manager::{KeyValueStore, DB_BATCH};
 use tokio::sync::mpsc;
+use tokio::time::{sleep, Duration};
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{transport::Server, Request, Response, Status};
 
@@ -67,6 +68,9 @@ impl SchedulingService for Scheduler {
                     .send(Ok(status))
                     .await
                     .expect("Failed to send status to stream");
+
+                // Attendre 10 secondes avant le prochain envoi
+                sleep(Duration::from_secs(10)).await;
             }
 
             sender

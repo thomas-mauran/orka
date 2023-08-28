@@ -16,8 +16,7 @@ impl KeyValueStore {
         let cfg = Config::new("./db/controller");
 
         // Open the key/value store
-        let store = Store::new(cfg)?;
-        
+        let store = Store::new(cfg)?;        
         Ok(Self { store })
     }
 
@@ -46,5 +45,4 @@ impl KeyValueStore {
         }
         Ok(instances)
     }
-
 }

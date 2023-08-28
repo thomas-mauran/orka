@@ -2,6 +2,7 @@ use crate::store::kv_manager::*;
 use crate::types::workload_request::WorkloadRequest;
 use crate::errors::ApiError;
 use axum::{Json, extract::Path};
+
 use serde_json::{self, json, Value};
 
 use uuid::Uuid;
@@ -43,6 +44,9 @@ pub async fn post_workload(body: String) -> anyhow::Result<Json<Value>, ApiError
 
     // Validate if the workload request is valid
     json_body.validate()?;
+    // Store the workload request in the database
+
+    // TODO: Check if the workload exists in the database
 
     // Generate a new uuid
     let id_with_prefix = format!("workload-{}-{}", json_body.workload.name, Uuid::new_v4());
@@ -52,5 +56,6 @@ pub async fn post_workload(body: String) -> anyhow::Result<Json<Value>, ApiError
 
     Ok(Json(
         json!({"Your workload is successfully created ": id_with_prefix}),
+
     ))
 }
