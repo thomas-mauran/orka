@@ -50,13 +50,11 @@ pub async fn post_workload(body: String) -> anyhow::Result<Json<Value>, ApiError
 
     // Init the database
     let db = KeyValueStore::new().unwrap();
-
     // Create a new Workload Request object out of the body
     let json_body: WorkloadRequest = serde_json::from_str(&body)?;
 
     // Validate if the workload request is valid
     json_body.validate()?;
-
     // Store the workload request in the database
 
     // TODO: Check if the workload exists in the database
@@ -72,7 +70,7 @@ pub async fn post_workload(body: String) -> anyhow::Result<Json<Value>, ApiError
     if !json_body.workload.environment.is_empty() {
         for env in json_body.workload.environment.iter() {
             environment.push(env.clone());
-        }
+      }
     }
 
     // Create a grpc workload object

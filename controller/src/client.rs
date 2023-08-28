@@ -28,7 +28,7 @@ impl Client {
         let response = self.client.schedule(request).await?;
 
         let stream = response.into_inner();
-
+      
         Ok(stream)
     }
 }
