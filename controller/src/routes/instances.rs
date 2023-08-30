@@ -62,7 +62,7 @@ pub async fn post_instance(body: String) -> anyhow::Result<Json<Value>, ApiError
 
             tokio::spawn(async move {
                 while let Some(status) = stream.message().await.unwrap() {
-                    let id_with_prefix = format!("instance-{}-{}", wr.workload.name, &status.name);
+                    let id_with_prefix = format!("instance-{}-{}", wr.workload.name, &status.instance_id);
                     trace!("STATUS={:?}", status);
                     let result = DB_BATCH.lock().unwrap().set(&id_with_prefix, &kv::Json(InstanceStatus::from(&status)));
                     match result {

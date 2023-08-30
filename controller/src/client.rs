@@ -5,10 +5,8 @@ use tonic::transport::Channel;
 
 use self::scheduler::WorkloadStatus;
 
-use self::scheduler::WorkloadStatus;
-
 pub mod scheduler {
-    tonic::include_proto!("orkascheduler");
+    tonic::include_proto!("scheduler.controller");
 }
 
 pub struct Client {
