@@ -6,6 +6,7 @@ mod types;
 
 use crate::client::scheduler;
 
+use client::scheduler::WorkloadInstance;
 use store::kv_manager::{KeyValueStore, DB_BATCH};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
@@ -13,7 +14,7 @@ use tonic::{transport::Server, Request, Response, Status};
 
 use axum::Router;
 use scheduler::scheduling_service_server::{SchedulingService, SchedulingServiceServer};
-use scheduler::{SchedulingRequest, WorkloadStatus};
+use scheduler::{SchedulingRequest, WorkloadStatus, workload_status::Status as DeploymentStatus};
 use std::net::SocketAddr;
 use std::sync::Arc;
 use std::thread;
@@ -32,6 +33,14 @@ pub struct Scheduler {}
 impl SchedulingService for Scheduler {
     type ScheduleStream = ReceiverStream<Result<WorkloadStatus, Status>>;
 
+    async fn stop(&self, request: Request<WorkloadInstance>) -> Result<Response<scheduler::Empty>, Status> {
+        todo!();
+    }
+
+    async fn destroy(&self, request: Request<WorkloadInstance>) -> Result<Response<scheduler::Empty>, Status> {
+        todo!();
+    }
+
     async fn schedule(
         &self,
         request: Request<SchedulingRequest>,
@@ -43,21 +52,18 @@ impl SchedulingService for Scheduler {
         tokio::spawn(async move {
             let fake_statuses_response = vec![
                 WorkloadStatus {
-                    name: "f7e05232-5c3a-4a5e-816e-a77c14342bc0".to_string(),
-                    status_code: 0,
-                    message: "Your workload is WAITING".to_string(),
+                    instance_id: "f7e05232-5c3a-4a5e-816e-a77c14342bc0".to_string(),
+                    status: Some(DeploymentStatus {code: 0, message: Some("The workload is waiting".to_string())}),
                     ..Default::default()
                 },
                 WorkloadStatus {
-                    name: "f7e05232-5c3a-4a5e-816e-a77c14342bc0".to_string(),
-                    status_code: 1,
-                    message: "Your workload is RUNNING".to_string(),
+                    instance_id: "f7e05232-5c3a-4a5e-816e-a77c14342bc0".to_string(),
+                    status: Some(DeploymentStatus {code: 1, message: Some("The workload is running".to_string())}),
                     ..Default::default()
                 },
                 WorkloadStatus {
-                    name: "f7e05232-5c3a-4a5e-816e-a77c14342bc0".to_string(),
-                    status_code: 2,
-                    message: "Your workload is TERMINATED".to_string(),
+                    instance_id: "f7e05232-5c3a-4a5e-816e-a77c14342bc0".to_string(),
+                    status: Some(DeploymentStatus {code: 2, message: Some("The workload is terminated".to_string())}),
                     ..Default::default()
                 },
             ];
