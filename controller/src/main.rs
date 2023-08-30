@@ -8,10 +8,6 @@ use crate::client::scheduler;
 
 use store::kv_manager::{KeyValueStore, DB_BATCH};
 use tokio::sync::mpsc;
-<<<<<<< HEAD
-=======
-use tokio::time::sleep;
->>>>>>> 9a70ba6 (fix: remove double imports, use Resources::default(), use log::info and error instead of println)
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{transport::Server, Request, Response, Status};
 
