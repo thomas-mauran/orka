@@ -15,7 +15,7 @@ impl From<&WorkloadStatus> for InstanceStatus {
     fn from(status: &WorkloadStatus) -> Self {
         InstanceStatus { 
             name: status.instance_id.clone(),
-            status_code: InstanceStatusCode::from(status.status),
+            status_code: InstanceStatusCode::from(status.status.clone()),
             resource_usage: InstanceResources { cpu: 1, memory: 1, disk: 1 },
         }
     }
@@ -42,8 +42,12 @@ pub struct InstanceStatusCode {
     pub message: Option<String>,
 }
 
-impl From<Status> for InstanceStatusCode {
-    fn from(status: Status) -> Self {
-        InstanceStatusCode { code: status.code, message: status.message }
+impl From<Option<Status>> for InstanceStatusCode {
+    fn from(status: Option<Status>) -> Self {
+        match status {
+            Some(st) => InstanceStatusCode { code: st.code, message: st.message.clone() },
+            None => InstanceStatusCode { code: 0, message: Some(String::from("No status found")) }
+        }
+        
     }
 }
