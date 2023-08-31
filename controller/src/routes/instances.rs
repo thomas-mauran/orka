@@ -5,7 +5,7 @@ use crate::types::instance_request::InstanceRequest;
 use crate::types::instance_status::InstanceStatus;
 use axum::extract::Path;
 use axum::Json;
-use log::{error, trace};
+use log::{trace, warn, error};
 use orka_proto::scheduler_controller::{SchedulingRequest, Workload, WorkloadInstance};
 use serde_json::{self, json, Value};
 use validator::Validate;
@@ -94,8 +94,13 @@ pub async fn post_instance(body: String) -> anyhow::Result<Json<Value>, ApiError
 
             let mut stream = client.schedule_workload(request).await?;
 
+            stream.message().await.map_err(|e|{
+                warn!("Error while creating the instance: {:?}", e);
+                ApiError::InstanceNotCreated{message: format!("Instance not created {:?}", e)}
+            })?;
+
             tokio::spawn(async move {
-                while let Some(status) = stream.message().await.unwrap() {
+                while let Ok(Some(status)) = stream.message().await {
                     trace!("STATUS={:?}", status);
                     let result = DB_BATCH.lock().unwrap().batch.set(
                         &status.instance_id,
