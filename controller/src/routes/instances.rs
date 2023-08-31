@@ -1,4 +1,3 @@
-use orka_proto::scheduler_controller::{SchedulingRequest, Workload, WorkloadInstance};
 use crate::client::Client;
 use crate::errors::ApiError;
 use crate::store::kv_manager::{KeyValueStore, DB_BATCH};
@@ -7,6 +6,7 @@ use crate::types::instance_status::InstanceStatus;
 use axum::extract::Path;
 use axum::Json;
 use log::{error, trace};
+use orka_proto::scheduler_controller::{SchedulingRequest, Workload, WorkloadInstance};
 use serde_json::{self, json, Value};
 use validator::Validate;
 
