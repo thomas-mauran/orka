@@ -4,8 +4,9 @@ mod routes;
 mod store;
 mod types;
 
+use store::kv_manager::DB_STORE;
 use orka_proto::scheduler_controller::{self, WorkloadInstance};
-use store::kv_manager::{KeyValueBatch, KeyValueStore, DB_BATCH};
+use store::kv_manager::{KeyValueBatch, DB_BATCH};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
@@ -173,7 +174,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         loop {
             thread::sleep(Duration::from_secs(5));
             let kv_batch = DB_BATCH.lock();
-            let kv_store = KeyValueStore::new();
+            let kv_store = DB_STORE.lock();
             match kv_batch {
                 Ok(mut kvbatch) => {
                     match kv_store {

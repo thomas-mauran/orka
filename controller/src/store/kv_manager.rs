@@ -40,19 +40,21 @@ impl DerefMut for KeyValueBatch {
     }
 }
 
+pub static DB_STORE: Lazy<Mutex<KeyValueStore>> = Lazy::new(|| Mutex::new(KeyValueStore::new()));
+
 pub struct KeyValueStore {
     store: Store,
 }
 
 impl KeyValueStore {
-    pub fn new() -> Result<Self, Error> {
+    pub fn new() -> Self {
         // Configure the database
         let cfg = Config::new("./db/controller");
 
         // Open the key/value store
-        let store = Store::new(cfg)?;
+        let store = Store::new(cfg).unwrap();
 
-        Ok(Self { store })
+        Self { store }
     }
 
     pub fn workloads_bucket(&self) -> Result<Bucket<'_, String, Json<WorkloadRequest>>, Error> {
