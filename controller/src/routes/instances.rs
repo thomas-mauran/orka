@@ -1,6 +1,6 @@
 use crate::client::Client;
 use crate::errors::ApiError;
-use crate::store::kv_manager::{KeyValueStore, DB_BATCH};
+use crate::store::kv_manager::{DB_BATCH, DB_STORE};
 use crate::types::instance_request::InstanceRequest;
 use crate::types::instance_status::InstanceStatus;
 use axum::extract::Path;
@@ -11,7 +11,7 @@ use serde_json::{self, json, Value};
 use validator::Validate;
 
 pub async fn get_instances(_body: String) -> anyhow::Result<Json<Value>, ApiError> {
-    let kv_store = KeyValueStore::new()?;
+    let kv_store = DB_STORE.lock().unwrap();
     let instance_list = kv_store.select_instances()?;
     Ok(Json(json!({ "instances": instance_list })))
 }
@@ -19,7 +19,7 @@ pub async fn get_instances(_body: String) -> anyhow::Result<Json<Value>, ApiErro
 pub async fn get_specific_instance(
     Path(id): Path<String>,
 ) -> anyhow::Result<Json<Value>, ApiError> {
-    let kv_store = KeyValueStore::new()?;
+    let kv_store = DB_STORE.lock().unwrap();
     let instance = kv_store.instances_bucket()?.get(&id)?;
     match instance {
         None => Ok(Json(json!({"description": "Instance not found"}))),
@@ -36,7 +36,7 @@ pub async fn delete_instance(Path(id): Path<String>) -> anyhow::Result<Json<Valu
 
     client.stop_instance(instance).await?;
 
-    let kv_store = KeyValueStore::new()?;
+    let kv_store = DB_STORE.lock().unwrap();
 
     let instance = kv_store.instances_bucket()?.remove(&id)?;
 
@@ -57,7 +57,7 @@ pub async fn delete_instance_force(
 
     client.destroy_instance(instance).await?;
 
-    let kv_store = KeyValueStore::new()?;
+    let kv_store = DB_STORE.lock().unwrap();
 
     let instance = kv_store.instances_bucket()?.remove(&id)?;
 
@@ -74,7 +74,7 @@ pub async fn post_instance(body: String) -> anyhow::Result<Json<Value>, ApiError
     // Validate the request
     json_body.validate()?;
 
-    let kv_store = KeyValueStore::new()?;
+    let kv_store = DB_STORE.lock().unwrap();
     let workload_request = kv_store.workloads_bucket()?.get(&json_body.workload_id)?;
 
     match workload_request {
