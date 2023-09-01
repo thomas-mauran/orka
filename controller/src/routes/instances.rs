@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::client::Client;
 use crate::errors::ApiError;
 use crate::store::kv_manager::{DB_BATCH, DB_STORE};
@@ -5,7 +7,7 @@ use crate::types::instance_request::InstanceRequest;
 use crate::types::instance_status::InstanceStatus;
 use axum::extract::Path;
 use axum::Json;
-use log::{trace, warn, error};
+use log::{error, trace, warn};
 use orka_proto::scheduler_controller::{SchedulingRequest, Workload, WorkloadInstance};
 use serde_json::{self, json, Value};
 use validator::Validate;
@@ -74,8 +76,13 @@ pub async fn post_instance(body: String) -> anyhow::Result<Json<Value>, ApiError
     // Validate the request
     json_body.validate()?;
 
-    let kv_store = DB_STORE.lock().unwrap();
-    let workload_request = kv_store.workloads_bucket()?.get(&json_body.workload_id)?;
+    let kv_store = Arc::clone(&DB_STORE);
+    let workload_request = kv_store
+        .lock()
+        .unwrap()
+        .workloads_bucket()?
+        .get(&json_body.workload_id)?;
+    drop(kv_store);
 
     match workload_request {
         None => Ok(Json(json!({"description": "Workload not found"}))),
@@ -94,9 +101,11 @@ pub async fn post_instance(body: String) -> anyhow::Result<Json<Value>, ApiError
 
             let mut stream = client.schedule_workload(request).await?;
 
-            stream.message().await.map_err(|e|{
+            stream.message().await.map_err(|e| {
                 warn!("Error while creating the instance: {:?}", e);
-                ApiError::InstanceNotCreated{message: format!("Instance not created {:?}", e)}
+                ApiError::InstanceNotCreated {
+                    message: format!("Instance not created {:?}", e),
+                }
             })?;
 
             tokio::spawn(async move {
