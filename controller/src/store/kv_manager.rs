@@ -1,6 +1,6 @@
 use std::{
     ops::{Deref, DerefMut},
-    sync::Mutex,
+    sync::{Arc, Mutex},
 };
 
 use crate::types::{instance_status::InstanceStatus, workload_request::WorkloadRequest};
@@ -40,7 +40,8 @@ impl DerefMut for KeyValueBatch {
     }
 }
 
-pub static DB_STORE: Lazy<Mutex<KeyValueStore>> = Lazy::new(|| Mutex::new(KeyValueStore::new()));
+pub static DB_STORE: Lazy<Arc<Mutex<KeyValueStore>>> =
+    Lazy::new(|| Arc::new(Mutex::new(KeyValueStore::new())));
 
 pub struct KeyValueStore {
     store: Store,
@@ -83,5 +84,11 @@ impl KeyValueStore {
             instances.push(instance?.key()?);
         }
         Ok(instances)
+    }
+}
+
+impl Default for KeyValueStore {
+    fn default() -> Self {
+        Self::new()
     }
 }
