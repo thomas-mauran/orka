@@ -53,7 +53,7 @@ impl From<Option<Resources>> for InstanceResources {
 #[derive(Debug, Validate, Deserialize, Serialize, Clone)]
 pub struct InstanceStatusCode {
     pub code: Code,
-    pub message: Option<String>,
+    pub message: String,
 }
 
 impl From<Option<Status>> for InstanceStatusCode {
@@ -61,11 +61,15 @@ impl From<Option<Status>> for InstanceStatusCode {
         match status {
             Some(st) => InstanceStatusCode {
                 code: Code::from_i32(st.code),
-                message: st.message,
+                message: if st.message.is_some() {
+                    st.message.unwrap()
+                } else {
+                    String::from("")
+                },
             },
             None => InstanceStatusCode {
-                code: Code::WAITING,
-                message: Some(String::from("No status found")),
+                code: Code::Waiting,
+                message: String::from("No status found"),
             },
         }
     }
@@ -73,19 +77,18 @@ impl From<Option<Status>> for InstanceStatusCode {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub enum Code {
-    WAITING = 0,
-    RUNNING = 1,
-    TERMINATED = 2,
+    Waiting,
+    Running,
+    Terminated,
 }
 
 impl Code {
     fn from_i32(value: i32) -> Code {
         match value {
-            0 => Code::WAITING,
-            1 => Code::RUNNING,
-            2 => Code::TERMINATED,
+            0 => Code::Waiting,
+            1 => Code::Running,
+            2 => Code::Terminated,
             _ => panic!("Unknown value: {}", value),
         }
     }
 }
-
